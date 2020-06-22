@@ -1,17 +1,27 @@
 import React from 'react'
-import {StyleSheet,View,FlatList} from 'react-native'
-import {CATEGORIES,MEALS} from '../Data/dummy-data';
+import {View,StyleSheet} from 'react-native'
+import {useSelector} from  'react-redux'
+import {CATEGORIES} from '../Data/dummy-data';
 import Meallist from '../components/Meallist';
-
+import DefaultText from '../components/DefaultText'
 const CategoryMeals=props=>
 {
   
  const catid=props.navigation.getParam('cid');
 
-    const displayMeals=MEALS.filter(
+ const availableMeals=useSelector(state=>state.meals.filterMeals);
+
+    const displayMeals=availableMeals.filter(
         meal=>meal.categoryIds.indexOf(catid)>=0);
   
-   //gives selected category
+
+if(displayMeals.length===0)
+{
+    return <View style={styles.content}>
+         <DefaultText>No meals found,maybe check your filters?</DefaultText>
+         </View>
+}
+   
 return(
     <Meallist listData={displayMeals}
     navigation={props.navigation}/>
@@ -29,5 +39,11 @@ return{
     headerTitle:selectedcategory.title,  
 };
 }
-
+const styles=StyleSheet.create({
+    content:{
+flex:1,
+justifyContent:'center',
+alignItems:'center'
+    }
+})
 export default CategoryMeals;

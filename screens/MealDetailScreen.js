@@ -1,9 +1,10 @@
-import React from 'react'
+import React,{useEffect,useCallback} from 'react'
 import {ScrollView,StyleSheet,Image,View,Text,Button} from 'react-native'
 import {HeaderButtons,Item} from 'react-navigation-header-buttons'
-import {MEALS} from '../Data/dummy-data'
+import {useSelector,useDispatch} from 'react-redux'
 import HeaderButton from '../components/HeaderButton'
 import DefaultText from "../components/DefaultText";
+import {toggleFavorite} from '../store/actions/meals'
 
 
 const ListItem=props=>
@@ -17,8 +18,41 @@ const ListItem=props=>
 
 const MealDetailScreen=props=>
 {
-    const mealId=props.navigation.getParam('mealId')
-    const selectedMeal=MEALS.find(meal=>meal.id===mealId)
+const avaialableMeals=useSelector(state=>state.meals.meals);
+//state.meals =state slice and then .meals is props in reducer file
+
+const mealId=props.navigation.getParam('mealId')
+const currentMealIsFav=useSelector(state=>state.meals.favMeals.some(meal=>meal.id===mealId));
+
+    
+    const selectedMeal=avaialableMeals.find(meal=>meal.id===mealId)
+const dispatch=useDispatch();
+
+const toggleFavoriteHandler=useCallback(()=>{
+    dispatch(toggleFavorite(mealId));
+},
+[dispatch,mealId]
+)
+//dispatch and mealID r the values that should not chnage
+
+
+    useEffect(()=>
+    {
+     //   props.navigation.setParams({ mealTitle:selectedMeal.title})
+    props.navigation.setParams({toggleFav:toggleFavoriteHandler})
+    
+    },[toggleFavoriteHandler]) 
+// so that we can use it niche
+
+
+useEffect(()=>
+{
+    props.navigation.setParams({isFav:currentMealIsFav})
+},[currentMealIsFav])
+
+
+
+
 return(<ScrollView>
     <Image 
     source={{uri:selectedMeal.imageUrl}}
@@ -36,7 +70,6 @@ return(<ScrollView>
 {selectedMeal.steps.map(step=>(<ListItem key={step}>{step}</ListItem >))}
 
 
-
     <View style={styles.screen}>
         
         <Button title="Go back to categories"
@@ -49,19 +82,26 @@ return(<ScrollView>
 )
 };
 
+
+//hook can be used within another hooks and in other functional components
+
 MealDetailScreen.navigationOptions=(navigationData)=>
-{const mealId=navigationData.navigation.getParam('mealId')
-const selectedMeal=MEALS.find(meal=>meal.id===mealId)
+
+{
+   // const mealId=navigationData.navigation.getParam('mealId')
+const toggleFavorite=navigationData.navigation.getParam('toggleFav')
+   const mealTitle=navigationData.navigation.getParam('mealTitle')
+const isFavorite=navigationData.navigation.getParam('isFav')
+//const selectedMeal=MEALS.find(meal=>meal.id===mealId)
     return{
-        headerTitle:selectedMeal.title,
+        headerTitle:mealTitle,
         headerTintColor:'white',
         headerRight:()=><HeaderButtons HeaderButtonComponent={HeaderButton}>
 <Item 
-title='Favorite' iconName='ios-star'  
-onPress={()=>
-{
-console.log('makred')
-}}/>
+title='Favorite' 
+iconName= {isFavorite?'ios-star':'ios-star-outline'}
+onPress={toggleFavorite}/>
+
         </HeaderButtons>
         //this is all to get star icon in right corner
         //install npm install npm start

@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import * as Font from 'expo-font';
 import{AppLoading} from 'expo'
 import{enableScreens} from 'react-native-screens'
 
 import MealsNavigator from './navigation/MealsNvaigator'
+import {createStore,combineReducers} from 'redux'
+import {Provider} from 'react-redux'
+import mealsReducer from './store/reducers/meals'
+
 
 enableScreens();//use in larger application
+
+const rootReducer=combineReducers({
+ meals:mealsReducer //IN END it will merges this meal reducer into this root reducer and later able 
+ //to work with the state managed by the meals reducer 
+ //able to access state using this meals
+})
+const store=createStore(rootReducer);
+
 
 const fetchFonts=()=>
 {
@@ -26,6 +37,6 @@ export default function App() {
   startAsync={fetchFonts}
    onFinish={()=> setFontLoaded(true)}/>
 
-return <MealsNavigator/>
-
+return <Provider store={store}><MealsNavigator /></Provider>
+//store is property to which store made upr is passesd
 }

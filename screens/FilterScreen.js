@@ -3,8 +3,8 @@ import {StyleSheet,View,Text,Switch} from 'react-native'
 import {HeaderButtons,Item} from 'react-navigation-header-buttons'
 import HeaderButton from '../components/HeaderButton'
 import Colors from '../consts/Colors'
-
-
+import {useDispatch} from 'react-redux'
+import {setFilters} from '../store/actions/meals'
 
 
 const FilterSwitch=props=>
@@ -30,6 +30,9 @@ const FilterScreen=props=>
     const[isVegetarian,setIsVegetarian]=useState(false)
 
 
+const dispatch=useDispatch();
+
+
 const saveFilters=useCallback(()=>
 {
     const appliedFilters={
@@ -38,6 +41,9 @@ const saveFilters=useCallback(()=>
         vegan:isVeagan,
         vegetarian:isVegetarian
     }
+dispatch(setFilters(appliedFilters))
+
+
 },[isGlutenFree,isLactoesFree,isVeagan,isVegetarian]//dependencies
 //if any of 4 state changes then this function will recreated
 )
